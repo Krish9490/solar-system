@@ -96,12 +96,19 @@ jobs:
             username: ${{ vars.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+        - name: GithubCR Login
+          uses: docker/login-action@v2.2.0
+          with:
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
         - name: Docker Build for Testing
           uses: docker/build-push-action@v4
           with:
             context: .
             push: false
-            tags: ${{ vars.DOCKERHUB_USERNAME }}/soalr-system:${{ github.sha }}
+            tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
 
         # - name: Docker Image Testing
         #   run: |
@@ -111,7 +118,7 @@ jobs:
         #       -e MONGO_URI=$MONGO_URI \
         #       -e ENV MONGO_USERNAME=$MONGO_USERNAME \
         #       -e ENV MONGO_PASSWORD=$MONGO_PASSWORD \
-        #       ${{ vars.DOCKERHUB_USERNAME }}/soalr-sysyem:${{ github.sha }}
+        #       ${{ vars.DOCKERHUB_USERNAME }}/solar-sysyem:${{ github.sha }}
             
         #     export IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' soalr-system-app)
         #     echo $IP
@@ -124,4 +131,13 @@ jobs:
           with:
             context: .
             push: true
-            tags: ${{ vars.DOCKERHUB_USERNAME }}/soalr-system:${{ github.sha }}
+            tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+
+        - name: Container Registry push
+          uses: docker/build-push-action@v4
+          with:
+            context: .
+            push: true
+            tags: | 
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+              ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
