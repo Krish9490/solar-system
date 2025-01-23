@@ -111,7 +111,7 @@ jobs:
               -e MONGO_URI=$MONGO_URI \
               -e ENV MONGO_USERNAME=$MONGO_USERNAME \
               -e ENV MONGO_PASSWORD=$MONGO_PASSWORD \
-              ${{ env.DOCKERHUB_USERNAME }}/soalr-sysyem:${{ github.sha }}
+              ${{ var.DOCKERHUB_USERNAME }}/soalr-sysyem:${{ github.sha }}
             
             export IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' soalr-system-app)
             echo $IP
