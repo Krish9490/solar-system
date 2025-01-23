@@ -95,3 +95,26 @@ jobs:
           with:
             username: ${{ vars.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+        - name: Docker Build for Testing
+          uses: docker/build-push-action@v4
+          with:
+            context: .
+            push: false
+            tags: ${{ vars.DOCKERHUB_USERNAME }}/soalr-system:${{ github.sha }}
+
+        - name: Docker Image Testing
+          run: |
+            docker images
+            docker run --name soalr-system-app -d \
+              -p 3000:3000 \
+              -e MONGO_URI=$MONGO_URI \
+              -e ENV MONGO_USERNAME=$MONGO_USERNAME \
+              -e ENV MONGO_PASSWORD=$MONGO_PASSWORD \
+              ${{ env.DOCKERHUB_USERNAME }}/soalr-sysyem:${{ github.sha }}
+            
+            export IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' soalr-system-app)
+            echo $IP
+
+            echo Testing Image URL using wget
+            wget -q -o - 127.0.0.1:3000/live | grep live
